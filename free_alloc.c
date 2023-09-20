@@ -28,3 +28,4 @@ void free_ptr_db(char **ptr)
 		free(ptr[i]);
 	free(ptr);
 }
+
