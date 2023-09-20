@@ -8,19 +8,19 @@
  * Return: char *
  */
 
-char *_strchr(char* str, int ch)
+char *_strchr(char *str, int ch)
 {
 	while (*str != '\0')
 	{
 		if (*str == ch)
 		{
-			return ((char*)str);
+			return ((char *)str);
 		}
 		str++;
 	}
 	if (ch == '\0')
 	{
-		return ((char*)str);
+		return ((char *)str);
 	}
 	return (NULL);
 }
@@ -32,15 +32,15 @@ char *_strchr(char* str, int ch)
  * Return: int
  */
 
-int _putenv(char* str)
+int _putenv(char *str)
 {
 	char *name, *existing;
 
 	if (str == NULL || _strchr(str, '=') == NULL)
 	{
-		return -1;
+		return (-1);
 	}
-	
+
 	name = str;
 	while (*name != '=' && *name != '\0')
 	{
@@ -57,6 +57,6 @@ int _putenv(char* str)
 			return (0);
 		}
 	}
-    return (-1);
+	return (-1);
 }
 

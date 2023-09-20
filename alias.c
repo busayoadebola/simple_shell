@@ -39,33 +39,33 @@ void alias_builtin(UNUSED char *line, char **args,
 				return;
 			}
 		}
-		else if (args[1] && args[2])
+	}
+	else if (args[1] && args[2])
+	{
+		for (i = 1; args[i] != NULL; i++)
 		{
-			for (i = 1; args[i] != NULL; i++)
+			name = args[i];
+			equals_pos = strchr(name, '=');
+			if (equals_pos != NULL)
 			{
-				name = args[i];
-				equals_pos = strchr(name, '=');
-				if (equals_pos != NULL)
+				equals_pos = '\0';
+				value = equals_pos + 1;
+				found = 0;
+				for (j = 0; j < alias_count; j++)
 				{
-					equals_pos = '\0';
-					value = equals_pos + 1;
-					found = 0;
-					for (j = 0; j < alias_count; j++)
+					if (strcmp(aliases[j].name, name) == 0)
 					{
-						if (strcmp(aliases[j].name, name) == 0)
-						{
-							found = 1;
-							free(aliases[j].value);
-							aliases[j].value = strdup(value);
-							return;
-						}
+						found = 1;
+						free(aliases[j].value);
+						aliases[j].value = strdup(value);
+						return;
 					}
-					if (!found && alias_count < MAX_ALIASES)
-					{
-						aliases[alias_count].name = strdup(name);
-						aliases[alias_count].value = strdup(value);
-						alias_count++;
-					}
+				}
+				if (!found && alias_count < MAX_ALIASES)
+				{
+					aliases[alias_count].name = strdup(name);
+					aliases[alias_count].value = strdup(value);
+					alias_count++;
 				}
 			}
 		}
