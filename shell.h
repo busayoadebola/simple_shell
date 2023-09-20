@@ -76,7 +76,7 @@ int print_int(int);
 /* Freeing functions */
 void free_ptr(char *);
 void free_ptr_db(char **);
-void cleanup_aliases(void);
+void cleanup_aliases();
 
 /* utility functions */
 int _strcmp(char *, char *);

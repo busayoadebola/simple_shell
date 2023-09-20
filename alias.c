@@ -4,7 +4,7 @@
 Alias aliases[MAX_ALIASES];
 int alias_count = 0;
 
-void cleanup_aliases(void)
+void cleanup_aliases()
 {
 	int i;
 	int alias_count = 0;
