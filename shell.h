@@ -48,7 +48,7 @@ typedef struct builtin
  * Description: structure holds alias
  */
 
-typedef struct
+typedef struct alias
 {
 	char *name;
 	char *value;
@@ -76,7 +76,7 @@ int print_int(int);
 /* Freeing functions */
 void free_ptr(char *);
 void free_ptr_db(char **);
-void cleanup_aliases();
+void cleanup_aliases(void);
 
 /* utility functions */
 int _strcmp(char *, char *);
