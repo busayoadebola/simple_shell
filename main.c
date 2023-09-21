@@ -70,64 +70,24 @@ int main(int ac, char **av)
 
 void get_keywords(char **av, int *cnt, char *line)
 {
-    char **argv = NULL;
-    int argc = 0;
-    int i = 0;
-    int status = 0; /* For tracking logical operator status (0: none, 1: &&, 2: ||)*/
+	char **argv = NULL;
+	int argc = 0;
 
-    /* Tokenize the keywords*/
-    argv = tokenize_keywords(line, &argc);
-    *cnt += 1;
 
-    if (argv == NULL)
-        return;
-
-    /* Loop through the arguments*/
-    while (i < argc)
-    {
-        if (_strcmp(argv[i], "&&") == 0)
-        {
-            status = 1; /* Set status to indicate logical AND*/
-            i++; /* Move to the next argument*/
-            continue;
-        }
-        else if (_strcmp(argv[i], "||") == 0)
-        {
-            status = 2; /* Set status to indicate logical OR*/
-            i++; /* Move to the next argument*/
-            continue;
-        }
-
-        if (argv[i][0] != '#')
-        {
-            /* Handle regular commands*/
-            /* Builtin or child process execution*/
-            if (status == 1)
-            {
-                /* Handle logical AND*/
-                if (builtin_cmd(argv[i], line, argv, *cnt, av) != 1)
-                    child_process_execute(av, cnt, argv);
-            }
-            else if (status == 2)
-            {
-                /* Handle logical OR*/
-                if (builtin_cmd(argv[i], line, argv, *cnt, av) == 1)
-                    child_process_execute(av, cnt, argv);
-            }
-            else
-            {
-                /* No logical operator, execute as normal*/
-                if (builtin_cmd(argv[i], line, argv, *cnt, av) != 1)
-                    child_process_execute(av, cnt, argv);
-            }
-        }
-
-        /* Reset the logical operator status*/
-        status = 0;
-        i++;
-    }
-
-    free_ptr_db(argv);
+	/* tokenize the keywords */
+	argv = tokenize_keywords(line, &argc);
+	*cnt += 1;
+	if (argv == NULL)
+		return;
+	/* builtin */
+	if (builtin_cmd(argv[0], line, argv, *cnt, av) == 1)
+	{
+		free_ptr_db(argv);
+		return;
+	}
+	/* call the function for child process */
+	child_process_execute(av, cnt, argv);
+	free_ptr_db(argv);
 }
 
 /**
@@ -140,47 +100,38 @@ void get_keywords(char **av, int *cnt, char *line)
 
 void child_process_execute(char **av, int *cnt, char **argv)
 {
-    char *exec_path = NULL;
-    pid_t child_process = 0;
-    struct stat statbuf;
+	char *exec_path = NULL;
+	pid_t child_process = 0;
+	struct stat statbuf;
 
-    if (!argv[0])
-        return;
-
-    /* Find the full path for the command*/
-    exec_path = find_path(argv[0]);
-
-    if (exec_path != NULL && access(exec_path, X_OK) == 0 && stat(exec_path, &statbuf) == 0)
-    {
-        child_process = fork();
-
-        if (child_process == -1)
-        {
-            perror("fork:");
-            return;
-        }
-
-        if (child_process == 0)
-        {
-            /* Child process*/
-            execve(exec_path, argv, NULL);
-            print_exec_err(av, *cnt, argv[0]);
-            exit(98);
-        }
-        else
-        {
-            /* Parent process*/
-            wait(NULL);
-        }
-    }
-    else
-    {
-        print_exec_err(av, *cnt, argv[0]);
-    }
-
-    free_ptr(exec_path);
+	if (!argv[0])
+		return;
+	exec_path = find_path(argv[0]);
+	if (exec_path != NULL && access(exec_path, X_OK) == 0 &&
+			stat(exec_path, &statbuf) == 0)
+	{
+		child_process = fork();
+		if (child_process == -1)
+		{
+			perror("fork:");
+			return;
+		}
+		if (child_process == 0)
+		{
+			execve(exec_path, argv, NULL);
+			print_exec_err(av, *cnt, argv[0]);
+			exit(98);
+		}
+		else
+			wait(NULL);
+	}
+	else
+	{
+		print_exec_err(av, *cnt, argv[0]);
+		return;
+	}
+	free_ptr(exec_path);
 }
-
 
 /**
  * tokenize_keywords - tokenize the keywords passed into the tty
@@ -192,7 +143,7 @@ void child_process_execute(char **av, int *cnt, char **argv)
 
 char **tokenize_keywords(char *line, int *argc)
 {
-	char **argv = NULL, *token = NULL, *delim = " \n;|#&", *line_cpy = NULL;
+	char **argv = NULL, *token = NULL, *delim = " \n", *line_cpy = NULL;
 	int i = 0;
 
 	/* duplicate string and increment argc for memalloc */
@@ -250,7 +201,7 @@ char *find_path(char *command)
 	path_env = _getenv("PATH");
 	if (path_env == NULL)
 		return (NULL);
-	path = strtok(path_env, ":");
+	path = _strtok(path_env, ":");
 	while (path != NULL)
 	{
 		full_path_len = _strlen(path) + _strlen(command) + 2;
@@ -269,12 +220,11 @@ char *find_path(char *command)
 		}
 		else
 		{
-			path = strtok(NULL, ":");
+			path = _strtok(NULL, ":");
 			free_ptr(full_path);
 		}
 	}
 	free_ptr(path_env);
 	return (NULL); /* Command not found*/
 }
-
 
