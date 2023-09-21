@@ -100,6 +100,8 @@ int _setenv(char *, char *, int);
 void setenv_builtin(char *, char **, int, char **);
 int _unsetenv(char *);
 void unsetenv_builtin(char *, char **, int, char **);
+void list_aliases(char **);
+void update_alias(char **);
 void alias_builtin(char *, char **, int, char **);
 
 
