@@ -110,6 +110,17 @@ void child_process_execute(char **av, int *cnt, char **argv)
 	if (exec_path != NULL && access(exec_path, X_OK) == 0 &&
 			stat(exec_path, &statbuf) == 0)
 	{
+		int i;
+
+		for (i = 0; argv[i] != NULL; i++)
+        {
+            if (strcmp(argv[i], "$$") == 0)
+            {
+                char pid_str[16]; 
+                snprintf(pid_str, sizeof(pid_str), "%d", getpid());
+                argv[i] = _strdup(pid_str);
+            }
+        }
 		child_process = fork();
 		if (child_process == -1)
 		{
@@ -123,7 +134,20 @@ void child_process_execute(char **av, int *cnt, char **argv)
 			exit(98);
 		}
 		else
-			wait(NULL);
+		{
+			int i, status;
+
+            wait(&status);
+            for (i = 0; argv[i] != NULL; i++)
+            {
+                if (strcmp(argv[i], "$?") == 0)
+                {
+                    char exit_status_str[16]; 
+                    snprintf(exit_status_str, sizeof(exit_status_str), "%d", WEXITSTATUS(status));
+                    argv[i] = _strdup(exit_status_str);
+                }
+            }
+        }
 	}
 	else
 	{
