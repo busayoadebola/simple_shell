@@ -89,6 +89,7 @@ int _putchar(char c);
 bool env_comp(char *, char *, int);
 int _putenv(char *);
 char *_strchr(char *, int);
+char *_strtok(char* str, char* delim);
 /* char *run_pwd(char *); */
 
 /* builtins */

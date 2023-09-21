@@ -28,7 +28,7 @@ int main(int ac, char **av)
 
 		while ((getline(&line, &n, file)) != -1)
 		{
-			command = strtok(line, "#");
+			command = _strtok(line, "#");
 			get_keywords(av, &cmd_cnt, command);
 		}
 		fclose(file);
@@ -42,7 +42,7 @@ int main(int ac, char **av)
 			if (glread == -1)
 				return (-1);
 
-			command = strtok(line, "#");
+			command = _strtok(line, "#");
 			get_keywords(av, &cmd_cnt, command);
 		}
 	}
@@ -50,11 +50,11 @@ int main(int ac, char **av)
 	{
 		while (_getline(&line, &n, STDIN_FILENO) != -1)
 		{
-			command = strtok(line, "#");
+			command = _strtok(line, "#");
 			get_keywords(av, &cmd_cnt, command);
 		}
 	}
-	free_ptr(line);
+	free(line);
 	cleanup_aliases();
 	return (0);
 }

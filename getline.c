@@ -26,7 +26,6 @@ ssize_t _getline(char** lineptr, size_t* n, int fd) {
 	    *lineptr = malloc(sizeof(char) * *n);
 	    if (*lineptr == NULL)
 	    {
-		    free(*lineptr);
 		    return (-1);
 	    }
     }
