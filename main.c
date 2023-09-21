@@ -9,84 +9,54 @@
 
 int main(int ac, char **av)
 {
-    int cmd_cnt = 0;
-    char *line = NULL;
-    size_t n = 0;
-    ssize_t glread = 0;
-    char *command;
+	int cmd_cnt = 0;
+	char *line = NULL;
+	size_t n = 0;
+	ssize_t glread = 0;
+	char *command;
 
-    if (ac == 2)
-    {
-        FILE *file = fopen(av[1], "r");
-        if (file == NULL)
-        {
-            dprintf(STDERR_FILENO,
-                    "%s: %d: Can't open %s\n",
-                    av[0], cmd_cnt, av[1]);
-            exit(127);
-        }
+	if (ac == 2)
+	{
+		FILE *file = fopen(av[1], "r");
+		if (file == NULL)
+		{
+			dprintf(STDERR_FILENO,
+					"%s: %d: Can't open %s\n",
+					av[0], cmd_cnt, av[1]);
+			exit(127);
+		}
 
-        while ((getline(&line, &n, file)) != -1)
-        {
-		char *token;
+		while ((getline(&line, &n, file)) != -1)
+		{
+			command = strtok(line, "#");
+			get_keywords(av, &cmd_cnt, command);
+		}
+		fclose(file);
+	}
+	else if (isatty(STDIN_FILENO))
+	{
+		while (1)
+		{
+			write(STDOUT_FILENO, "($) ", sizeof("($) "));
+			glread = _getline(&line, &n, STDIN_FILENO);
+			if (glread == -1)
+				return (-1);
 
-            token = _strtok(line, ";#");
-            while (token != NULL)
-            {
-                command = _strtok(token, " \t\n");
-                if (command != NULL)
-                {
-                    get_keywords(av, &cmd_cnt, command);
-                }
-                token = _strtok(NULL, ";#");
-            }
-        }
-        fclose(file);
-    }
-    else if (isatty(STDIN_FILENO))
-    {
-        while (1)
-        {
-		char *token;
-
-            write(STDOUT_FILENO, "($) ", sizeof("($) "));
-            glread = _getline(&line, &n, STDIN_FILENO);
-            if (glread == -1)
-                return (-1);
-
-           token = _strtok(line, ";#");
-            while (token != NULL)
-            {
-                command = _strtok(token, " \t\n");
-                if (command != NULL)
-                {
-                    get_keywords(av, &cmd_cnt, command);
-                }
-                token = _strtok(NULL, ";#");
-            }
-        }
-    }
-    else
-    {
-        while (_getline(&line, &n, STDIN_FILENO) != -1)
-        {
-		char *token;
-
-            token = _strtok(line, ";#");
-            while (token != NULL)
-            {
-                command = _strtok(token, " \t\n");
-                if (command != NULL)
-                {
-                    get_keywords(av, &cmd_cnt, command);
-                }
-                token = _strtok(NULL, ";#");
-            }
-        }
-    }
-    free_ptr(line);
-    cleanup_aliases();
-    return (0);
+			command = strtok(line, "#");
+			get_keywords(av, &cmd_cnt, command);
+		}
+	}
+	else
+	{
+		while (_getline(&line, &n, STDIN_FILENO) != -1)
+		{
+			command = strtok(line, "#");
+			get_keywords(av, &cmd_cnt, command);
+		}
+	}
+	free_ptr(line);
+	cleanup_aliases();
+	return (0);
 }
 
 /**
