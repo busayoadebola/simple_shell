@@ -38,7 +38,7 @@ int main(int ac, char **av)
 		while (1)
 		{
 			write(STDOUT_FILENO, "($) ", sizeof("($) "));
-			glread = getline(&line, &n, STDIN_FILENO);
+			glread = _getline(&line, &n, STDIN_FILENO);
 			if (glread == -1)
 				return (-1);
 
@@ -48,7 +48,7 @@ int main(int ac, char **av)
 	}
 	else
 	{
-		while (getline(&line, &n, STDIN_FILENO) != -1)
+		while (_getline(&line, &n, STDIN_FILENO) != -1)
 		{
 			command = _strtok(line, "#");
 			get_keywords(av, &cmd_cnt, command);
