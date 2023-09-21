@@ -56,8 +56,10 @@ void cd_builtin(UNUSED char *line, char **args,
     {
 	    perror("cd");
     }
-    free_ptr(old_dir);
-    free_ptr(home_dir);
+    if (home_dir)
+	    free(home_dir);
+    if (old_dir)
+	    free(old_dir);
 }
 
 
