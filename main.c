@@ -9,54 +9,84 @@
 
 int main(int ac, char **av)
 {
-	int cmd_cnt = 0;
-	char *line = NULL;
-	size_t n = 0;
-	ssize_t glread = 0;
-	char *command;
+    int cmd_cnt = 0;
+    char *line = NULL;
+    size_t n = 0;
+    ssize_t glread = 0;
+    char *command;
 
-	if (ac == 2)
-	{
-		FILE *file = fopen(av[1], "r");
-		if (file == NULL)
-		{
-			dprintf(STDERR_FILENO,
-					"%s: %d: Can't open %s\n",
-					av[0], cmd_cnt, av[1]);
-			exit(127);
-		}
+    if (ac == 2)
+    {
+        FILE *file = fopen(av[1], "r");
+        if (file == NULL)
+        {
+            dprintf(STDERR_FILENO,
+                    "%s: %d: Can't open %s\n",
+                    av[0], cmd_cnt, av[1]);
+            exit(127);
+        }
 
-		while ((getline(&line, &n, file)) != -1)
-		{
-			command = _strtok(line, "#");
-			get_keywords(av, &cmd_cnt, command);
-		}
-		fclose(file);
-	}
-	else if (isatty(STDIN_FILENO))
-	{
-		while (1)
-		{
-			write(STDOUT_FILENO, "($) ", sizeof("($) "));
-			glread = _getline(&line, &n, STDIN_FILENO);
-			if (glread == -1)
-				return (-1);
+        while ((getline(&line, &n, file)) != -1)
+        {
+		char *token;
 
-			command = _strtok(line, "#");
-			get_keywords(av, &cmd_cnt, command);
-		}
-	}
-	else
-	{
-		while (_getline(&line, &n, STDIN_FILENO) != -1)
-		{
-			command = _strtok(line, "#");
-			get_keywords(av, &cmd_cnt, command);
-		}
-	}
-	free(line);
-	cleanup_aliases();
-	return (0);
+            token = _strtok(line, ";#");
+            while (token != NULL)
+            {
+                command = _strtok(token, " \t\n");
+                if (command != NULL)
+                {
+                    get_keywords(av, &cmd_cnt, command);
+                }
+                token = _strtok(NULL, ";#");
+            }
+        }
+        fclose(file);
+    }
+    else if (isatty(STDIN_FILENO))
+    {
+        while (1)
+        {
+		char *token;
+
+            write(STDOUT_FILENO, "($) ", sizeof("($) "));
+            glread = _getline(&line, &n, STDIN_FILENO);
+            if (glread == -1)
+                return (-1);
+
+           token = _strtok(line, ";#");
+            while (token != NULL)
+            {
+                command = _strtok(token, " \t\n");
+                if (command != NULL)
+                {
+                    get_keywords(av, &cmd_cnt, command);
+                }
+                token = _strtok(NULL, ";#");
+            }
+        }
+    }
+    else
+    {
+        while (_getline(&line, &n, STDIN_FILENO) != -1)
+        {
+		char *token;
+
+            token = _strtok(line, ";#");
+            while (token != NULL)
+            {
+                command = _strtok(token, " \t\n");
+                if (command != NULL)
+                {
+                    get_keywords(av, &cmd_cnt, command);
+                }
+                token = _strtok(NULL, ";#");
+            }
+        }
+    }
+    free_ptr(line);
+    cleanup_aliases();
+    return (0);
 }
 
 /**
@@ -110,17 +140,6 @@ void child_process_execute(char **av, int *cnt, char **argv)
 	if (exec_path != NULL && access(exec_path, X_OK) == 0 &&
 			stat(exec_path, &statbuf) == 0)
 	{
-		int i;
-
-		for (i = 0; argv[i] != NULL; i++)
-        {
-            if (strcmp(argv[i], "$$") == 0)
-            {
-                char pid_str[16]; 
-                snprintf(pid_str, sizeof(pid_str), "%d", getpid());
-                argv[i] = _strdup(pid_str);
-            }
-        }
 		child_process = fork();
 		if (child_process == -1)
 		{
@@ -134,20 +153,7 @@ void child_process_execute(char **av, int *cnt, char **argv)
 			exit(98);
 		}
 		else
-		{
-			int i, status;
-
-            wait(&status);
-            for (i = 0; argv[i] != NULL; i++)
-            {
-                if (strcmp(argv[i], "$?") == 0)
-                {
-                    char exit_status_str[16]; 
-                    snprintf(exit_status_str, sizeof(exit_status_str), "%d", WEXITSTATUS(status));
-                    argv[i] = _strdup(exit_status_str);
-                }
-            }
-        }
+			wait(NULL);
 	}
 	else
 	{
@@ -167,7 +173,7 @@ void child_process_execute(char **av, int *cnt, char **argv)
 
 char **tokenize_keywords(char *line, int *argc)
 {
-	char **argv = NULL, *token = NULL, *delim = " \n", *line_cpy = NULL;
+	char **argv = NULL, *token = NULL, *delim = " \n;|#&", *line_cpy = NULL;
 	int i = 0;
 
 	/* duplicate string and increment argc for memalloc */
@@ -251,4 +257,5 @@ char *find_path(char *command)
 	free_ptr(path_env);
 	return (NULL); /* Command not found*/
 }
+
 
