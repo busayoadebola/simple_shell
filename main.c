@@ -144,7 +144,7 @@ void child_process_execute(char **av, int *cnt, char **argv)
 char **tokenize_keywords(char *line, int *argc)
 {
 	char **argv = NULL, *token = NULL, *delim = " \n", *line_cpy = NULL;
-	int j, i = 0;
+	int i = 0;
 
 	/* duplicate string and increment argc for memalloc */
 	line_cpy = _strdup(line);
@@ -169,10 +169,6 @@ char **tokenize_keywords(char *line, int *argc)
 		token = strtok(NULL, delim);
 	}
 	argv[i] = NULL;
-	for (j = 0; j < i; j++)
-	{
-		free(argv[j]);
-	}
 	return (argv);
 }
 
