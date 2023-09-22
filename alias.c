@@ -1,7 +1,7 @@
 #include "shell.h"
 
 static Alias aliases[MAX_ALIASES];
-
+static int alias_count = 0;
 /**
  * cleanup_aliases - to clean up alias
  */
@@ -9,7 +9,6 @@ static Alias aliases[MAX_ALIASES];
 void cleanup_aliases()
 {
 	int i;
-	int alias_count = 0;
 
 	for (i = 0; i < alias_count; i++)
 	{
@@ -25,7 +24,6 @@ void cleanup_aliases()
 void display_aliases(void)
 {
 	int i;
-	int alias_count = 0;
 
 	for (i = 0; i < alias_count; i++)
 	{
@@ -43,7 +41,6 @@ void display_aliases(void)
 void add_or_modify_alias(char *name, char *value)
 {
 	int i, found = 0;
-	int alias_count = 0;
 
 	for (i = 0; i < alias_count; i++)
 	{
@@ -76,7 +73,6 @@ void alias_builtin(UNUSED char *line, char **args,
 		UNUSED int cnt, UNUSED char **av)
 {
 	int i;
-	int alias_count = 0;
 
 	if (args[1] == NULL)
 	{
