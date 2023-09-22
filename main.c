@@ -1,13 +1,45 @@
 #include "shell.h"
 
+
 /**
- * main - a shell replica
- * @ac: number of args passed
- * @av: the args passed
- * Return: 0.
+ * processFromFile - Function to process input from a file
+ * @filename: the file name
+ * @av: the argument therein
+ * Return: void
  */
 
-int main(int ac, char **av)
+void processFromFile(char *filename, char **av)
+{
+	int cmd_cnt = 0;
+	char *line = NULL;
+	size_t n = 0;
+	char *command;
+
+	FILE *file = fopen(filename, "r");
+
+	if (file == NULL)
+	{
+		dprintf(STDERR_FILENO, "%s: %d: Can't open %s\n", av[0], cmd_cnt, filename);
+		exit(127);
+	}
+	while ((getline(&line, &n, file)) != -1)
+	{
+		command = _strtok(line, "#");
+		get_keywords(av, &cmd_cnt, command);
+	}
+	fclose(file);
+	free(line);
+}
+
+
+/**
+ * processInput - Function to process input from
+ * the command line or standard input
+ * @av: the arguments
+ * Return: void
+ */
+
+void processInput(char **av)
 {
 	int cmd_cnt = 0;
 	char *line = NULL;
@@ -15,46 +47,40 @@ int main(int ac, char **av)
 	ssize_t glread = 0;
 	char *command;
 
-	if (ac == 2)
+	while (1)
 	{
-		FILE *file = fopen(av[1], "r");
-		if (file == NULL)
-		{
-			dprintf(STDERR_FILENO,
-					"%s: %d: Can't open %s\n",
-					av[0], cmd_cnt, av[1]);
-			exit(127);
-		}
-
-		while ((getline(&line, &n, file)) != -1)
-		{
-			command = _strtok(line, "#");
-			get_keywords(av, &cmd_cnt, command);
-		}
-		fclose(file);
-	}
-	else if (isatty(STDIN_FILENO))
-	{
-		while (1)
+		if (isatty(STDIN_FILENO))
 		{
 			write(STDOUT_FILENO, "($) ", sizeof("($) "));
-			glread = _getline(&line, &n, STDIN_FILENO);
-			if (glread == -1)
-				return (-1);
-
-			command = _strtok(line, "#");
-			get_keywords(av, &cmd_cnt, command);
 		}
+		glread = getline(&line, &n, stdin);
+		if (glread == -1)
+		{
+			break;
+		}
+		command = _strtok(line, "#");
+		get_keywords(av, &cmd_cnt, command);
+	}
+	free(line);
+}
+
+/**
+ * main - the main function
+ * @ac: the argument count
+ * @av: the array of arguments
+ * Return: 0
+ */
+
+int main(int ac, char **av)
+{
+	if (ac == 2)
+	{
+		processFromFile(av[1], av);
 	}
 	else
 	{
-		while (_getline(&line, &n, STDIN_FILENO) != -1)
-		{
-			command = _strtok(line, "#");
-			get_keywords(av, &cmd_cnt, command);
-		}
+		processInput(av);
 	}
-	free_ptr(line);
 	cleanup_aliases();
 	return (0);
 }
@@ -132,99 +158,3 @@ void child_process_execute(char **av, int *cnt, char **argv)
 	}
 	free_ptr(exec_path);
 }
-
-/**
- * tokenize_keywords - tokenize the keywords passed into the tty
- * @line: the text/keys to togcc -Wall -Werror -Wextra
- * -pedantic -std=gnu89 *.c -o hshkenize
- * @argc: number of tokens
- * Return: arrays of pointers to tokens
- */
-
-char **tokenize_keywords(char *line, int *argc)
-{
-	char **argv = NULL, *token = NULL, *delim = " \n", *line_cpy = NULL;
-	int i = 0;
-
-	/* duplicate string and increment argc for memalloc */
-	line_cpy = _strdup(line);
-	token = _strtok(line_cpy, delim);
-	if (token == NULL)
-		return (NULL);
-	while (token)
-	{
-		*argc += 1;
-		token = _strtok(NULL, delim);
-	}
-	free_ptr(line_cpy);
-
-	argv = malloc(sizeof(char *) * (*argc + 1));
-	if (argv == NULL)
-		return (NULL);
-	i = 0;
-	token = _strtok(line, delim);
-	while (token)
-	{
-		argv[i++] = _strdup(token);
-		token = _strtok(NULL, delim);
-	}
-	argv[i] = NULL;
-	return (argv);
-}
-
-/**
- * find_path - takes command name as argument & search for full path
- * @command: the command name opassed as an arguement
- *
- * Return: full path if found, otherwise return NULL
- */
-
-char *find_path(char *command)
-{
-	char *path_env = NULL, *path = NULL, *full_path = NULL;
-	size_t full_path_len = 0;
-	bool path_type = false;
-
-	if (command[0] == '.')
-	{
-		if (access(command, X_OK) == 0)
-		{
-			full_path = _strdup(command);
-			return (full_path);
-		}
-	}
-	path_type = (command[0] == '/');
-	if (path_type && access(command, X_OK) == 0)
-	{
-		return (_strdup(command)); /* Return an absolute path */
-	}
-	path_env = _getenv("PATH");
-	if (path_env == NULL)
-		return (NULL);
-	path = _strtok(path_env, ":");
-	while (path != NULL)
-	{
-		full_path_len = _strlen(path) + _strlen(command) + 2;
-		full_path = malloc(sizeof(char) * full_path_len);
-		if (full_path == NULL)
-		{
-			free_ptr(path_env);
-			return (NULL); /*Memory allocation error*/
-		}
-		_strcpy(full_path, path);
-		_strcat(full_path, "/");
-		_strcat(full_path, command);
-		if (access(full_path, X_OK) == 0)
-		{
-			return (full_path);
-		}
-		else
-		{
-			path = _strtok(NULL, ":");
-			free_ptr(full_path);
-		}
-	}
-	free_ptr(path_env);
-	return (NULL); /* Command not found*/
-}
-
