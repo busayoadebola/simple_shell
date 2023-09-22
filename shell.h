@@ -76,7 +76,7 @@ int print_int(int);
 /* Freeing functions */
 void free_ptr(char *);
 void free_ptr_db(char **);
-void cleanup_aliases();
+void cleanup_aliases(void);
 
 /* utility functions */
 int _strcmp(char *, char *);
@@ -89,7 +89,7 @@ int _putchar(char c);
 bool env_comp(char *, char *, int);
 int _putenv(char *);
 char *_strchr(char *, int);
-char *_strtok(char* str, char* delim);
+char *_strtok(char *str, char *delim);
 /* char *run_pwd(char *); */
 
 /* builtins */

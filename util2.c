@@ -59,33 +59,36 @@ int _putenv(char *str)
 	}
 	return (-1);
 }
-char *_strtok(char* str, char* delim) 
+
+/**
+ * *_strtok - to tokenize
+ * @str: the string to tokenize
+ * @delim: the delimiter
+ * Return: the tokenized string
+ */
+
+char *_strtok(char *str, char *delim)
 {
-    static char *lastToken = NULL; 
-    char *tokenStart;
- 
+	static char *lastToken;
+	char *tokenStart;
 
-    if (!str)
-        str = lastToken;
-
-    while (*str && _strchr(delim, *str))
-        str++;
-
-    if (*str == '\0') {
-        lastToken = NULL;
-        return (NULL);
-    }
-
-    tokenStart = str;
-    while (*str && !_strchr(delim, *str))
-        str++;
-
-    if (*str) {
-        *str = '\0';
-        str++;
-    }
-
-    lastToken = str; 
-    return (tokenStart);
+	if (!str)
+		str = lastToken;
+	while (*str && _strchr(delim, *str))
+		str++;
+	if (*str == '\0')
+	{
+		lastToken = NULL;
+		return (NULL);
+	}
+	tokenStart = str;
+	while (*str && !_strchr(delim, *str))
+		str++;
+	if (*str)
+	{
+		*str = '\0';
+		str++;
+	}
+	lastToken = str;
+	return (tokenStart);
 }
-
