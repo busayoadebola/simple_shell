@@ -1,12 +1,12 @@
 #include "shell.h"
 
 static Alias aliases[MAX_ALIASES];
-static int alias_count = 0;
+static int alias_count;
 /**
  * cleanup_aliases - to clean up alias
  */
 
-void cleanup_aliases()
+void cleanup_aliases(void)
 {
 	int i;
 
