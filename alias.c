@@ -6,7 +6,7 @@ static Alias aliases[MAX_ALIASES];
  * cleanup_aliases - to clean up alias
  */
 
-void cleanup_aliases(void)
+void cleanup_aliases()
 {
 	int i;
 	int alias_count = 0;
