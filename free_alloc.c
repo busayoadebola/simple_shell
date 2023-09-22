@@ -15,7 +15,6 @@ void free_ptr(char *ptr)
 /**
  * free_ptr_db - freeing a double pointer
  * @ptr: ptr to free
- * @pos: where to free from
  *
  * Return: void.
  */

@@ -77,72 +77,6 @@ void builtin_env(UNUSED char *line, UNUSED char **argv,
 
 
 /**
- * cd_builtins - builtin function for cd command
- * @line: accepts string
- * @argv: arg vectore
- * @cnt: num of args passed
- * @av: args passed to program
- *
- * Return: void
- */
-/*
-void cd_builtin(UNUSED char *line, UNUSED char **args,
-		UNUSED int cnt, UNUSED char **av)
-{
-	char new_dir[MAX_DIR_LEN];
-	char *home_dir = _getenv("HOME");
-	char *old_dir = _getenv("PWD");
-	
-	if (!args[1] || _strcmp(args[1], "~") == 0)
-	{
-		if (home_dir)
-		{
-			_strcpy(new_dir, home_dir);
-		}
-		else
-		{
-			write(STDERR_FILENO, "cd: HOME environment variable not set\n", 37);
-			return;
-		}
-	}
-	else if (_strcmp(args[1], "-") == 0)
-	{
-		if (old_dir)
-		{
-			_strcpy(new_dir, old_dir);
-		}
-		else
-		{
-			write(STDERR_FILENO, "cd: PWD environment variable not set\n", 36);
-			return;
-		}
-	}
-	else
-	{
-		_strcpy(new_dir, args[1]);
-	}
-	
-	if (chdir(new_dir) == 0)
-	{
-		char cwd[MAX_DIR_LEN];
-
-		if (getcwd(cwd, sizeof(cwd)) != NULL)
-		{
-			_setenv("PWD", cwd, 1);
-		}
-		else
-		{
-			write(STDERR_FILENO, "cd: Unable to update PWD environment variable\n", 46);
-		}
-	}
-	else
-	{
-		perror("cd");
-	}
-}
-
-*/
-/**
  * _setenv - set environment
  * @name: name of the environment (key)
  * @value: the value of environ
@@ -161,7 +95,7 @@ int _setenv(char *name, char *value, int overwrite)
 		errno = EINVAL;
 		return (-1);
 	}
-	
+
 	name_len = _strlen(name);
 	value_len = _strlen(value);
 
@@ -171,7 +105,6 @@ int _setenv(char *name, char *value, int overwrite)
 		errno = ENOMEM;
 		return (-1);
 	}
-	
 	_strcpy(env_entry, name);
 	_strcat(env_entry, "=");
 	_strcat(env_entry, value);
@@ -199,7 +132,7 @@ int _setenv(char *name, char *value, int overwrite)
 /**
  * setenv_builtin - sets an env
  * @line: accepts string
- * @argv: arg vecto
+ * @args: arg vecto
  * @cnt: num of args passed
  * @av: args passed to program
  *
@@ -227,4 +160,3 @@ void setenv_builtin(UNUSED char *line, char **args,
 		write(STDERR_FILENO, ": not found\n", 12);
 	}
 }
-

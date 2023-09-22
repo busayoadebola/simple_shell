@@ -7,41 +7,35 @@
  * Return: int
  */
 
-
-int _unsetenv(char* name)
+int _unsetenv(char *name)
 {
-	size_t env_count;
-	char **environ_ptr = environ;
-	char **new_environ;
+	size_t env_count, entry_len;
+	char **new_environ, **environ_ptr = environ;
 	int new_idx = 0;
 
 	if (name == NULL || strchr(name, '=') != NULL)
 	{
-		return -1;
+		return (-1);
 	}
-
 	while (*environ_ptr != NULL)
 	{
 		env_count++;
 		environ_ptr++;
 	}
-	
-	new_environ = malloc(sizeof(char*) * (env_count + 1));
+	new_environ = malloc(sizeof(char *) * (env_count + 1));
 	if (new_environ == NULL)
 	{
 		return (-1);
 	}
-
 	environ_ptr = environ;
 	while (*environ_ptr != NULL)
 	{
-		char* entry_name = *environ_ptr;
-		char* equals_pos = strchr(entry_name, '=');
-		
+		char *entry_name = *environ_ptr;
+		char *equals_pos = strchr(entry_name, '=');
+
 		if (equals_pos != NULL)
 		{
-			size_t entry_len = equals_pos - entry_name;
-			
+			entry_len = equals_pos - entry_name;
 			if (strncmp(entry_name, name, entry_len) != 0)
 			{
 				new_environ[new_idx] = *environ_ptr;
@@ -59,7 +53,7 @@ int _unsetenv(char* name)
 /**
  * unsetenv_builtin - unsets an env
  * @line: accepts string
- * @argv: the arg vector
+ * @args: the arg vector
  * @cnt: the num of args passed
  * @av: the args passed to program
  *
@@ -94,4 +88,3 @@ void unsetenv_builtin(UNUSED char *line, char **args,
 		write(STDERR_FILENO, ": not found\n ", 12);
 	}
 }
-
